@@ -26,16 +26,4 @@
       reboot:
         post_reboot_delay: 60
       throttle: 1
-      when: reboot_required.rc == 1 and ansible_facts ['virtualization_role'] != 'host'
-
-    - debug:
-      var: reboot_required.rc
-      verbosity: 2
-
-    - name: Check the uptime post reboot
-      shell: uptime
-      register: UPTIME_POST_REBOOT
-      when: reboot_required.rc == 1
-
-    - debug: msg={{UPTIME_POST_REBOOT.stdout}}
       when: reboot_required.rc == 1
