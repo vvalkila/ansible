@@ -8,3 +8,22 @@
     - name: Install htop with apt
       apt: name=htop
       when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+    - name: DNF update system
+      dnf:
+        name: "*"
+        state: latest
+      when: ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+
+    - name: Reboot required
+      command: "/usr/bin/needs-restarting -r"
+      register: reboot_required
+      ignore_errors: True
+      changed_when: False
+      failed_when: reboot_required.rc == 2
+
+    - name: Rebooting
+      reboot:
+        post_reboot_delay: 60
+      throttle: 1
+      when: reboot_required.rc == 1 and ansible_facts ['virtualization_role'] != 'host'
