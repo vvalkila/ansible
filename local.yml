@@ -1,5 +1,10 @@
 - hosts: localhost
   become: true
   tasks:
-    - name: Install htop
+    - name: Install htop with dnf
+      dnf: name=htop
+      when: ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+
+    - name: Install htop with apt
       apt: name=htop
+      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
