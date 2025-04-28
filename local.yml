@@ -22,8 +22,11 @@
       changed_when: False
       failed_when: reboot_required.rc == 2
 
+    - name: Reboot notify
+      become: true
+      command: wall reboot in 60 seconds
+      listen: Rebooting
+
     - name: Rebooting
-      reboot:
-        post_reboot_delay: 60
-      throttle: 1
+      command: shutdown -r +1
       when: reboot_required.rc == 1
