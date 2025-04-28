@@ -3,11 +3,11 @@
   tasks:
     - name: Install htop with dnf
       dnf: name=htop
-      when: ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'Fedora'
+      when: ansible_os_family == "RedHat"
 
     - name: Install htop with apt
       apt: name=htop
-      when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+      when: ansible_os_family == "Debian"
 
     - name: DNF update system
       dnf:
@@ -21,12 +21,14 @@
       ignore_errors: True
       changed_when: False
       failed_when: reboot_required.rc == 2
+      when: ansible_os_family == "RedHat"
 
-    - name: Reboot notify
-      become: true
-      command: wall reboot in 60 seconds
-      listen: Rebooting
+    - name: check for reboot file
+      stat:
+      path: /var/run/reboot-required
+      register: reboot_required_file
+      when: ansible_os_family == "Debian"
 
-    - name: Rebooting
+    - name: rebooting
       command: shutdown -r +1
-      when: reboot_required.rc == 1
+      when: (ansible_os_family == "Debian" and reboot_required_file.stat.exists) or (ansible_os_family == "RedHat" and reboot_required.rc == 1)
